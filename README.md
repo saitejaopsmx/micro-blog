@@ -196,3 +196,15 @@ curl -u moderator1:password -X DELETE http://localhost:8080/posts/c2a7b2a0-8b1a-
 ```bash
 curl "http://localhost:8080/posts/urls?keyword=First"
 ```
+
+### Get URL Content
+
+*   **Method**: `GET`
+*   **URL**: `/url?url={url}`
+*   **Roles**: Authenticated Users
+*   **Response**: The content of the provided URL.
+*   **cURL**:
+
+```bash
+curl -u user1:password "http://localhost:8080/url?url=https://www.google.com"
+```

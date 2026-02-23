@@ -24,6 +24,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/posts").hasAnyRole("USER", "MODERATOR")
                         .requestMatchers(HttpMethod.DELETE, "/posts/**").hasRole("MODERATOR")
+                        .requestMatchers("/url").authenticated()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(withDefaults());
