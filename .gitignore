@@ -1,4 +1,6 @@
 HELP.md
+download.sh
+micro-blog.zip
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

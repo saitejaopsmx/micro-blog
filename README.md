@@ -7,6 +7,7 @@ A simple micro-blogging application that uses AWS S3 for data storage.
 *   Java 17
 *   Maven
 *   AWS CLI
+*   Docker
 *   Configured AWS credentials
 
 ## Configuration
@@ -37,11 +38,39 @@ aws.s3.bucket-name=micro-blogging
 
 ## How to Run
 
+### Locally
+
 You can run the application using the following command:
 
 ```bash
 ./mvnw spring-boot:run
 ```
+
+### With Docker
+
+1.  Build the application:
+
+```bash
+./mvnw package
+```
+
+2.  Build the Docker image:
+
+```bash
+docker build -t micro-blog .
+```
+
+3.  Run the Docker container:
+
+```bash
+docker run -p 8080:8080 -e AWS_ACCESS_KEY_ID=<YOUR_ACCESS_KEY> -e AWS_SECRET_ACCESS_KEY=<YOUR_SECRET_KEY> micro-blog
+```
+
+## API Documentation
+
+The API documentation is available through Swagger UI at the following URL:
+
+[http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 ## Authentication
 
@@ -141,9 +170,29 @@ curl http://localhost:8080/posts
 
 *   **Method**: `DELETE`
 *   **URL**: `/posts/{id}`
-*   **Roles**: `MODERATOR`
+*   **Roles**: `MODERATOR` (Can delete any user's post)
 *   **cURL**:
 
 ```bash
 curl -u moderator1:password -X DELETE http://localhost:8080/posts/c2a7b2a0-8b1a-4b1a-9b1a-0a0b0c0d0e0f
+```
+
+### Get Post URLs by Title
+
+*   **Method**: `GET`
+*   **URL**: `/posts/urls?keyword={keyword}`
+*   **Roles**: `permitAll`
+*   **Response**:
+
+```json
+[
+    "https://s3.us-west-2.amazonaws.com/micro-blogging/c2a7b2a0-8b1a-4b1a-9b1a-0a0b0c0d0e0f?...",
+    "https://s3.us-west-2.amazonaws.com/micro-blogging/d3b8c3b1-9c2b-5c2b-ac2b-1b1c1d1e1f10?..."
+]
+```
+
+*   **cURL**:
+
+```bash
+curl "http://localhost:8080/posts/urls?keyword=First"
 ```
