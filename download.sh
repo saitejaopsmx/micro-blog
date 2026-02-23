@@ -1,2 +1,0 @@
-#!/bin/bash
-curl "https://start.spring.io/starter.zip?type=maven-project&language=java&bootVersion=3.5.0&groupId=com.example&artifactId=micro-blog&name=micro-blog&packageName=com.example.microblog&dependencies=web" -o "micro-blog.zip"
