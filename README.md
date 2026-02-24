@@ -58,6 +58,8 @@ You can run the application using the following command:
 
 ### With Docker
 
+#### Simple Docker build
+
 1.  Build the application:
 
 ```bash
@@ -74,6 +76,20 @@ docker build -t micro-blog .
 
 ```bash
 docker run -p 8080:8080 -e AWS_ACCESS_KEY_ID=<YOUR_ACCESS_KEY> -e AWS_SECRET_ACCESS_KEY=<YOUR_SECRET_KEY> micro-blog
+```
+
+#### Multi-stage Docker build
+
+1.  Build the Docker image using the multi-stage Dockerfile:
+
+```bash
+docker build -f Dockerfile.multistage -t micro-blog-multistage .
+```
+
+2.  Run the Docker container:
+
+```bash
+docker run -p 8080:8080 -e AWS_ACCESS_KEY_ID=<YOUR_ACCESS_KEY> -e AWS_SECRET_ACCESS_KEY=<YOUR_SECRET_KEY> micro-blog-multistage
 ```
 
 ## API Documentation
