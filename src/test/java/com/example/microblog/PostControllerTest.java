@@ -24,13 +24,13 @@ public class PostControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private S3Service s3Service;
+    private StorageService storageService;
 
     @Test
     @WithMockUser(roles = "USER")
     public void testCreatePostWithUserRole() throws Exception {
         Post post = new Post("123", "Test Title", "Test Content");
-        when(s3Service.createPost(any(Post.class))).thenReturn(post);
+        when(storageService.createPost(any(Post.class))).thenReturn(post);
 
         mockMvc.perform(post("/posts")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -45,7 +45,7 @@ public class PostControllerTest {
     @WithMockUser(roles = "MODERATOR")
     public void testCreatePostWithModeratorRole() throws Exception {
         Post post = new Post("123", "Test Title", "Test Content");
-        when(s3Service.createPost(any(Post.class))).thenReturn(post);
+        when(storageService.createPost(any(Post.class))).thenReturn(post);
 
         mockMvc.perform(post("/posts")
                 .contentType(MediaType.APPLICATION_JSON)

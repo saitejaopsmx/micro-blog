@@ -12,10 +12,10 @@ import java.util.List;
 @RequestMapping("/posts")
 public class PostController {
 
-    private final S3Service s3Service;
+    private final StorageService storageService;
 
-    public PostController(S3Service s3Service) {
-        this.s3Service = s3Service;
+    public PostController(StorageService storageService) {
+        this.storageService = storageService;
     }
 
     @Operation(summary = "Create a new post")
@@ -26,7 +26,7 @@ public class PostController {
     })
     @PostMapping
     public Post createPost(@RequestBody Post post) throws IOException {
-        return s3Service.createPost(post);
+        return storageService.createPost(post);
     }
 
     @Operation(summary = "Get a post by ID")
@@ -36,13 +36,13 @@ public class PostController {
     })
     @GetMapping("/{id}")
     public Post getPost(@PathVariable String id) throws IOException {
-        return s3Service.getPost(id);
+        return storageService.getPost(id);
     }
 
     @Operation(summary = "Get all posts")
     @GetMapping
-    public List<Post> getAllPosts() {
-        return s3Service.getAllPosts();
+    public List<Post> getAllPosts() throws IOException {
+        return storageService.getAllPosts();
     }
 
     @Operation(summary = "Delete a post by ID")
@@ -52,13 +52,13 @@ public class PostController {
             @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     @DeleteMapping("/{id}")
-    public void deletePost(@PathVariable String id) {
-        s3Service.deletePost(id);
+    public void deletePost(@PathVariable String id) throws IOException {
+        storageService.deletePost(id);
     }
 
     @Operation(summary = "Get post URLs by title keyword")
     @GetMapping("/urls")
-    public List<String> getPostUrlsByTitle(@RequestParam String keyword) {
-        return s3Service.getPostUrlsByTitle(keyword);
+    public List<String> getPostUrlsByTitle(@RequestParam String keyword) throws IOException {
+        return storageService.getPostUrlsByTitle(keyword);
     }
 }

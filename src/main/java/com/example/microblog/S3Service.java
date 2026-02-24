@@ -3,8 +3,6 @@ package com.example.microblog;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.s3.S3Resource;
 import io.awspring.cloud.s3.S3Template;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
@@ -14,21 +12,21 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Service
-public class S3Service {
+public class S3Service implements StorageService {
 
     private final S3Template s3Template;
     private final String bucketName;
     private final ObjectMapper objectMapper;
     private final S3Presigner s3Presigner;
 
-    public S3Service(S3Template s3Template, @Value("${aws.s3.bucket-name}") String bucketName, S3Presigner s3Presigner) {
+    public S3Service(S3Template s3Template, String bucketName, S3Presigner s3Presigner) {
         this.s3Template = s3Template;
         this.bucketName = bucketName;
         this.objectMapper = new ObjectMapper();
         this.s3Presigner = s3Presigner;
     }
 
+    @Override
     public Post createPost(Post post) throws IOException {
         String id = UUID.randomUUID().toString();
         post.setId(id);
@@ -36,12 +34,14 @@ public class S3Service {
         return post;
     }
 
+    @Override
     public Post getPost(String id) throws IOException {
         String content = s3Template.read(bucketName, id, String.class);
         return objectMapper.readValue(content, Post.class);
     }
 
-    public List<Post> getAllPosts() {
+    @Override
+    public List<Post> getAllPosts() throws IOException {
         return s3Template.listObjects(bucketName, "").stream()
                 .map(S3Resource::getFilename)
                 .map(key -> {
@@ -54,11 +54,13 @@ public class S3Service {
                 .collect(Collectors.toList());
     }
 
-    public void deletePost(String id) {
+    @Override
+    public void deletePost(String id) throws IOException {
         s3Template.deleteObject(bucketName, id);
     }
 
-    public List<String> getPostUrlsByTitle(String keyword) {
+    @Override
+    public List<String> getPostUrlsByTitle(String keyword) throws IOException {
         return s3Template.listObjects(bucketName, "").stream()
                 .map(S3Resource::getFilename)
                 .filter(key -> {

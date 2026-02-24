@@ -12,6 +12,16 @@ A simple micro-blogging application that uses AWS S3 for data storage.
 
 ## Configuration
 
+### Storage
+
+You can configure the application to use either `local` file storage or `s3` for storing posts. This can be configured in the `src/main/resources/application.properties` file:
+
+```properties
+storage.type=local
+```
+
+If you use `s3`, you will also need to configure your AWS credentials.
+
 ### AWS Credentials
 
 The application requires AWS credentials to be configured in your environment. The application uses the default credential chain to authenticate with AWS. You can configure credentials in the following ways:
