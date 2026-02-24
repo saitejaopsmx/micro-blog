@@ -1,0 +1,118 @@
+# .github/workflows/worker-workflow.yml
+name: Docker Build and Push
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: false
+        type: string
+      image_tag:
+        required: true
+        type: string
+      registry:
+        required: true
+        type: string
+      repository:
+        required: true
+        type: string
+      org:
+        required: true
+        type: string
+      application_tags:
+        required: false
+        type: string
+      artifactory_url:
+        required: false
+        type: string
+
+    secrets:
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_PASSWORD:
+        required: true
+      SSD_URL:
+        required: true
+      SSD_TEAM_TOKEN:
+        required: true
+        
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository code
+      - name: Checkout repository code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Check for .env and config files
+      - name: Examine source code structure
+        run: |
+          echo "=== Repository Structure ==="
+          find . -type f | grep -v "/.git/" | sort
+          
+          # Check if .env file exists
+          if [ -f ".env" ]; then
+            echo ".env file found - will be scanned for secrets"
+            LINES=$(wc -l < .env)
+            echo ".env contains $LINES lines"
+            echo "Lines potentially containing secrets: $(grep -i -E 'key|secret|password|token|credential' .env | wc -l)"
+          else
+            echo ".env file not found"
+          fi
+          
+          # Look for any files that might contain sensitive data
+          echo "=== Potential config/secret files ==="
+          find . -name "*.env*" -o -name "*.yaml" -o -name "*.yml" -o -name "*.conf" -o -name "*.config" -o -name "*.json" -o -name "*.properties" | grep -v "/.git/"
+
+      - name: Build, tag, and push docker image to Amazon ECR
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile.multistage
+          push: true
+          tags: ${{ inputs.registry }}/${{ inputs.repository }}:${{ inputs.image_tag }}
+
+      - name: Print GitHub Environment Variables
+        env:
+          SSD_URL: ${{ secrets.SSD_URL }}
+          SSD_TEAM_TOKEN: ${{ secrets.SSD_TEAM_TOKEN }}
+        run: |
+          echo "Artifact Name: ${{ inputs.registry }}/${{ inputs.repository }}:${{ inputs.image_tag }}"
+          echo "Registry: ${{ inputs.registry }}"
+          echo "Artifact Tag: ${{ inputs.image_tag }}"
+          echo "SSD URL: $SSD_URL"
+          echo "SSD Token: $SSD_TEAM_TOKEN"
+          echo "Source Code Path: ${GITHUB_WORKSPACE}"
+          echo "Repository URL: https://github.com/${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Build ID: ${{ github.run_id }}"
+
+      # Step 12: Send Build Event to SSD
+      - name: Send Build Event to SSD
+        env:
+          SSD_URL: ${{ secrets.SSD_URL }}/webhook/v1/ssd
+        run: |
+          curl --location -v "$SSD_URL" \
+               --header "Content-Type: application/json" \
+               --data '{
+                 "jobname": "${{ github.workflow }}",
+                 "buildnumber": "${{ github.run_number }}",
+                 "joburl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+                 "gitcommit": "${{ github.sha }}",
+                 "builduser": "${{ github.actor }}",
+                 "giturl": "https://github.com/${{ github.repository }}",
+                 "tool": "githubactions",
+                 "gitbranch": "${{ github.ref_name }}",
+                 "artifacts": [
+                   {
+                      "image": "${{ inputs.registry }}/${{ inputs.repository }}:${{ inputs.image_tag }}"
+                   }
+                 ]
+               }'

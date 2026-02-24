@@ -1,0 +1,23 @@
+# .github/workflows/caller-workflow.yml
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - test-ghactions
+
+jobs:
+  build:
+    uses: j-sandy/micro-blog/.github/workflows/worker-workflow.yml@main
+    with:
+      image_tag: ${{ github.run_id }}
+      repository: ''
+      registry: ''
+      org: "opsmx"
+      application_tags: "v1.0"
+
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      SSD_URL: ${{ secrets.SSD_URL }}
+      SSD_TEAM_TOKEN: ${{ secrets.SSD_TEAM_TOKEN }}      
