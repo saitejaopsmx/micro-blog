@@ -22,9 +22,6 @@ on:
       application_tags:
         required: false
         type: string
-      artifactory_url:
-        required: false
-        type: string
 
     secrets:
       DOCKER_USERNAME:
