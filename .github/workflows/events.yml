@@ -8,11 +8,11 @@ on:
 
 jobs:
   build:
-    uses: j-sandy/micro-blog/.github/workflows/worker-workflow.yml@main
+    uses: saitejaopsmx/micro-blog/.github/workflows/worker-workflow.yml@test-ghactions
     with:
       image_tag: ${{ github.run_id }}
-      repository: ''
-      registry: ''
+      repository: 'micro-blog'
+      registry: 'docker.io/opsmx11'
       org: "opsmx"
       application_tags: "v1.0"
 
