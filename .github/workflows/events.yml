@@ -1,4 +1,3 @@
-# .github/workflows/caller-workflow.yml
 name: Build and Push Docker Images
 
 on:
