@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    uses: saitejaopsmx/micro-blog/.github/workflows/worker-workflow.yml@test-ghactions
+    uses: saitejaopsmx/micro-blog/.github/workflows/workflow.yml@test-ghactions
     with:
       image_tag: ${{ github.run_id }}
       repository: 'micro-blog'
